@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Shopping Cart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Your Shopping Cart</h1>
+        <a href="index.html" style="color: white; text-decoration: none;">← Continue Shopping</a>
+    </header>
+
+    <div class="container" style="background: white; padding: 30px; border-radius: 8px;">
+        <div id="cart-items">
+            </div>
+        <hr>
+        <div style="text-align: right; margin-top: 20px;">
+            <h3>Total: $<span id="cart-total">0</span></h3>
+            <button class="btn" onclick="checkout()" style="background-color: #007bff;">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <script>
+        function displayCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const container = document.getElementById('cart-items');
+            let total = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = "<p>Your cart is empty.</p>";
+                document.getElementById('cart-total').innerText = "0";
+                return;
+            }
+
+            container.innerHTML = cart.map((item, index) => {
+                total += item.price * item.quantity;
+                return `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #ddd;">
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <img src="${item.image}" style="width: 60px; hieght: 60px; object-fit: cover; border-radius: 4px;">
+                            <div>
+                                <h4>${item.name}</h4>
+                                <p>$${item.price} x ${item.quantity}</p>
+                            </div>
+                        </div>
+                        <button class="btn" style="background-color: #dc3545;" onclick="removeItem(${index})">Remove</button>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cart-total').innerText = total;
+        }
+
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCart();
+        }
+
+        function checkout() {
+            alert('Order processed successfully! Thank you for your purchase.');
+            localStorage.removeItem('cart');
+            window.location.href = 'index.html';
+        }
+
+        displayCart();
+    </script>
+</body>
+</html>

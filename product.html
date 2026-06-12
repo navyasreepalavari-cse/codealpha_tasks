@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Details</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Product Details</h1>
+        <a href="index.html" style="color: white; text-decoration: none;">← Back to Shop</a>
+    </header>
+
+    <div class="container" style="background: white; padding: 30px; border-radius: 8px;">
+        <div id="product-detail" style="display: flex; gap: 40px; flex-wrap: wrap;">
+            </div>
+    </div>
+
+   <script>
+    let currentProduct = null; // Store product details globally
+
+    async function loadProduct() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        if (productId) {
+            const response = await fetch(`http://localhost:5000/api/products/${productId}`);
+            currentProduct = await response.json();
+
+            document.getElementById('product-detail').innerHTML = `
+                <img src="${currentProduct.image}" style="max-width: 400px; width: 100%; object-fit: cover; border-radius: 8px;">
+                <div style="flex: 1; min-width: 300px;">
+                    <h2>${currentProduct.name}</h2>
+                    <h3 style="color: #28a745;">$${currentProduct.price}</h3>
+                    <p>${currentProduct.description}</p>
+                    <button class="btn" onclick="addToCart()">Add to Cart</button>
+                </div>
+            `;
+        }
+    }
+
+    function addToCart() {
+        if (!currentProduct) return;
+
+        // Get existing cart or create a new empty array
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        // Check if the item is already in the cart
+        const existingItem = cart.find(item => item.id === currentProduct._id);
+
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({
+                id: currentProduct._id,
+                name: currentProduct.name,
+                price: currentProduct.price,
+                image: currentProduct.image,
+                quantity: 1
+            });
+        }
+
+        // Save back to local storage
+        localStorage.setItem('cart', JSON.stringify(cart));
+        
+        // Take the user straight to the cart page!
+        window.location.href = 'cart.html';
+    }
+
+    loadProduct();
+</script>
+</body>
+</html>
